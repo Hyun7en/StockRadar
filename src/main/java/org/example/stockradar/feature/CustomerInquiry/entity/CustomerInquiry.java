@@ -1,10 +1,11 @@
-package org.example.stockradar.feature.auth.entity;
+package org.example.stockradar.feature.CustomerInquiry.entity;
 
-import  jakarta.persistence.*;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.stockradar.feature.auth.entity.Member;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
