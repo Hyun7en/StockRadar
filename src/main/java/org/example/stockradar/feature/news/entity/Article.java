@@ -1,4 +1,4 @@
-package org.example.stockradar.feature.article.entity;
+package org.example.stockradar.feature.news.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
