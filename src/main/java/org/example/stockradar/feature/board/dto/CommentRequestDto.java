@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class CommentRequestDto {
+    private Long commentId;
     private Long boardId;
     private String content;
 }
