@@ -21,10 +21,11 @@ import java.util.stream.Collectors;
 public class ProductStockService {
 
     private final ProductRepository productRepository;
-    //1.비동기식 조회 처리 비교
-    //2.Redis 캐싱후 성능 조회
 
 
+
+
+    //시나리오1
     public List<ProductResponseDto> getProductsWithStockAndPrice() {
         try {
             List<Product> products = productRepository.findAllWithStockStatusAndPrice();
@@ -41,7 +42,7 @@ public class ProductStockService {
                             .availability(product.getStockStatus().getAvailability())
                             .price(product.getStockStatus().getPrice().getPrice())
                             .lastUpdated(product.getStockStatus().getLastUpdated())
-                            .redirectUrl(product.getProductUrl())
+                            .productUrl(product.getProductUrl())
                             .build())
                     .collect(Collectors.toList());
 
@@ -50,5 +51,6 @@ public class ProductStockService {
             return Collections.emptyList(); // null 대신 빈 리스트 반환
         }
     }
+
 
 }
