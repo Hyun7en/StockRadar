@@ -73,3 +73,7 @@ cloud:
     credentials:
       accessKey: # fill out
       secretKey: # fill out
+
+discord:
+  bot:
+    token: "***REMOVED***"
