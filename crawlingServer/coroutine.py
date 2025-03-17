@@ -105,12 +105,12 @@ async def save_to_db(pool, category_name, store_name, product_name, product_url,
 
 async def main():
     # DB 커넥션 풀 생성 (aiomysql)
-    logger.info("🔄 MySQL 연결 풀 생성 중...")
+    logger.info("MySQL 연결 풀 생성 중...")
     pool = await aiomysql.create_pool(
         host="localhost",
         port=3306,
         user="root",
-        password="***REMOVED***",
+        password="1234",
         db="stockradar",
         autocommit=True,
         minsize=1,
@@ -118,7 +118,7 @@ async def main():
     )
 
     async with aiohttp.ClientSession() as session:
-        logger.info("🚀 크롤링 시작!")
+        logger.info("크롤링 시작!")
         tasks = [process_task(session, task) for task in URL_TASKS]
         start_time = time.perf_counter()
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -129,7 +129,7 @@ async def main():
         success_count = sum(1 for res in results if not isinstance(res, Exception))
         fail_count = total - success_count
 
-        logger.info(f"✅ 총 작업: {total} 건, 성공: {success_count} 건, 실패: {fail_count} 건, 크롤링 소요 시간: {elapsed_time:.2f} 초")
+        logger.info(f"총 작업: {total} 건, 성공: {success_count} 건, 실패: {fail_count} 건, 크롤링 소요 시간: {elapsed_time:.2f} 초")
 
         # DB 저장: 각 URL_TASKS의 정보와 크롤링 결과를 매핑하여 저장
         for task, res in zip(URL_TASKS, results):
@@ -144,7 +144,7 @@ async def main():
     
     pool.close()
     await pool.wait_closed()
-    logger.info("📌 크롤링 종료!")
+    logger.info("크롤링 종료!")
 
 if __name__ == '__main__':
     asyncio.run(main())
