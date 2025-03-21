@@ -10,9 +10,9 @@ from crawler import get_amazon_data, get_ssg_data, get_11st_data
 from url_config import URL_TASKS
 
 db = mysql.connector.connect(
-    host="localhost",
+    host="***REMOVED***",
     user="root",
-    password="1234",
+    password="***REMOVED***",
     database="stockradar"
 )
 db.autocommit = True
