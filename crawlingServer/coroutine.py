@@ -107,7 +107,7 @@ async def main():
     # DB 커넥션 풀 생성 (aiomysql)
     logger.info("MySQL 연결 풀 생성 중...")
     pool = await aiomysql.create_pool(
-        host="localhost",
+        host="***REMOVED***",
         port=3306,
         user="root",
         password="***REMOVED***",
