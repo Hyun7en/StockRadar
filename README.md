@@ -117,3 +117,11 @@
 고병현  
 - Email: rhqudgus99@gmail.com  
 - GitHub: https://github.com/Hyun7en
+
+---
+⚠️ This project does NOT collect data from commercial marketplaces
+such as Amazon, 11st, or SSG due to their Terms of Service.
+
+All crawling targets were selected based on robots.txt
+and public accessibility.
+
