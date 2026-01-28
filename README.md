@@ -1,3 +1,4 @@
+# Stock Radar Project
 <p align="center">
   <img
     src="https://github.com/user-attachments/assets/475ffeee-fbd1-4df4-ab98-b90c674e6b3e"
@@ -6,10 +7,6 @@
     alt="StockRadar"
   />
 </p>
-
-# Stock Radar Project
-
-
 
 ## 프로젝트 개요
 
