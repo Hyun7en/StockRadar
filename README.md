@@ -238,6 +238,7 @@ frontend/
 
 ## 협업 관리
 
+###GIT
 <img width="1920" height="1080" alt="git_flow" src="https://github.com/user-attachments/assets/4ebe5123-b6bb-4034-a57f-6c679bd8a4d3" />
 
 * GitHub Issues를 활용한 작업 단위 관리
