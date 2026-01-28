@@ -1,5 +1,11 @@
-<img width="567" height="567" alt="StockRadar" src="https://github.com/user-attachments/assets/475ffeee-fbd1-4df4-ab98-b90c674e6b3e" />
-
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/475ffeee-fbd1-4df4-ab98-b90c674e6b3e"
+    width="567"
+    height="567"
+    alt="StockRadar"
+  />
+</p>
 # Stock Radar Project
 컴퓨터 부품 실시간 재고 · 최저가 비교 및 알림 서비스
 
