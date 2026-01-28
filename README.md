@@ -1,9 +1,14 @@
-# Stock Radar
+# Stock Radar Project
 컴퓨터 부품 실시간 재고 · 최저가 비교 및 알림 서비스
 
 ---
 
-## 프로젝트 개요
+## 프로젝트 기간
+
+---
+
+
+## 서비스 소개
 
 **Stock Radar**는 여러 쇼핑몰에 분산된 컴퓨터 부품의 가격 및 재고 정보를 수집·비교하고,  
 사용자가 설정한 조건에 따라 **실시간 알림을 제공하는 서비스**입니다.
@@ -13,6 +18,39 @@
 
 본 프로젝트는 팀 프로젝트로 진행되었으며,  
 **본인은 백엔드 개발을 중심으로 실시간 처리 및 알림 시스템 구현과 전반적인 프론트앤드 개발을 담당**하였습니다.
+
+---
+## 기술 스택
+
+### Backend
+- Spring Boot
+- JPA (Hibernate)
+- Kafka
+
+### Frontend
+- HTML5
+- CSS3
+- JavaScript
+- Axios
+- Bootstrap
+- Thymeleaf
+
+### Data
+- 쇼핑몰 크롤링 데이터
+- 실시간 이벤트 기반 처리
+
+### Infra / Etc
+- Docker
+- Git / GitHub
+- Gradle
+
+---
+
+## 프로젝트 구성
+### 시스템 아키텍쳐
+### 시스템 흐름도
+### 폴더 구조
+### ERD
 
 ---
 
@@ -36,7 +74,7 @@
 
 ---
 
-## 주요 기능 및 구현 내용
+## 주요 기능
 
 ### 실시간 재고 및 가격 수집
 - 쇼핑몰 크롤링을 통해 가격·재고 데이터 수집
@@ -61,29 +99,7 @@
 
 ---
 
-## 기술 스택
 
-### Backend
-- Spring Boot
-- JPA (Hibernate)
-- Kafka
-
-### Frontend
-- HTML5
-- CSS3
-- JavaScript
-- Axios
-- Bootstrap
-- Thymeleaf
-
-### Data
-- 쇼핑몰 크롤링 데이터
-- 실시간 이벤트 기반 처리
-
-### Infra / Etc
-- Docker
-- Git / GitHub
-- Gradle
 
 ---
 
@@ -111,6 +127,10 @@
 - 담당 영역: **백엔드 중심 (실시간 처리 및 알림 시스템)**
 
 ---
+## 협업 관리
+
+--
+
 
 ## Contact
 
