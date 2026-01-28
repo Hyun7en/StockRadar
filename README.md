@@ -127,7 +127,8 @@
 * 가격/재고 변동 이벤트 발생 시 Kafka 메시지 발행
 * 알림 서비스에서 이벤트 소비 후 사용자 알림 전송
 
-(아키텍처 다이어그램 이미지 예정)
+<img width="2560" height="1440" alt="Architecture" src="https://github.com/user-attachments/assets/9e457460-21eb-4953-a8c1-a8ed33750fc7" />
+
 
 ### 시스템 흐름도
 
@@ -236,6 +237,8 @@ frontend/
 <!-- ------------------------------------------------------------------------------------------------------------------------------ -->
 
 ## 협업 관리
+
+<img width="1920" height="1080" alt="git_flow" src="https://github.com/user-attachments/assets/4ebe5123-b6bb-4034-a57f-6c679bd8a4d3" />
 
 * GitHub Issues를 활용한 작업 단위 관리
 * 기능 단위 브랜치 전략 적용
