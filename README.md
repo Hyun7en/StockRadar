@@ -255,8 +255,10 @@ frontend/
 
 * Email: [rhqudgus99@gmail.com](mailto:rhqudgus99@gmail.com)
 * GitHub: [https://github.com/Hyun7en](https://github.com/Hyun7en)
+<br>
+<br>
 
----
+<!-- ------------------------------------------------------------------------------------------------------------------------------ -->
 
 ⚠️ 본 프로젝트는 Amazon, 11st, SSG 등
 상업적 마켓플레이스의 데이터를 수집하지 않습니다.
