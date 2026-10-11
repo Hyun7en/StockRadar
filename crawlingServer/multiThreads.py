@@ -7,14 +7,10 @@ from concurrent.futures import ThreadPoolExecutor
 
 from crawler import get_amazon_data, get_ssg_data, get_11st_data
 from url_config import URL_TASKS
+from db_config import DB_CONFIG
 
 # === 1) 커넥션 풀 생성 ===
-dbconfig = {
-    "host": "localhost",
-    "user": "root",
-    "password": "1234",
-    "database": "stockradar"
-}
+dbconfig = DB_CONFIG  # 접속 정보는 환경변수/.env (db_config.py)
 
 pool = mysql.connector.pooling.MySQLConnectionPool(
     pool_name="mypool",

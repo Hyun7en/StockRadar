@@ -451,9 +451,9 @@
 <!-- 토큰갱신용 스크립트(근영) -->
 <div sec:authorize="isAuthenticated()">
     <script>
-        // 28분마다 /refresh 엔드포인트 호출
+        // 28분마다 /auth/refresh 엔드포인트 호출 (ACCESS_TOKEN 쿠키 갱신)
         setInterval(function() {
-            fetch('/refresh', {
+            fetch('/auth/refresh', {
                 method: 'POST',
                 credentials: 'include'
             })

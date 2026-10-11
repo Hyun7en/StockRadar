@@ -15,5 +15,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class CommentDeleteRequestDto {
     private Long commentId;
+    @lombok.ToString.Exclude
     private String password;
 }

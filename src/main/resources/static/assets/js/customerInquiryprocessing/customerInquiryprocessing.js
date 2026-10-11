@@ -49,12 +49,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const formattedDate = `${createdDate.getFullYear()}-${String(createdDate.getMonth() + 1).padStart(2, '0')}-${String(createdDate.getDate()).padStart(2, '0')} ${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`;
 
             // 행 내용 설정
+            // 사용자 입력은 textContent로만 출력 (XSS 방지)
             row.innerHTML = `
-                <td><a href="#" class="inquiry-title" data-id="${inquiry.inquiryId}">${inquiry.inquiryTitle}</a></td>
-                <td>${categoryText}</td>
-                <td>${inquiry.memberEmail}</td>
-                <td>${formattedDate}</td>
+                <td><a href="#" class="inquiry-title"></a></td>
+                <td class="inquiry-category"></td>
+                <td class="inquiry-email"></td>
+                <td class="inquiry-date"></td>
             `;
+            const titleCell = row.querySelector('.inquiry-title');
+            titleCell.textContent = inquiry.inquiryTitle;
+            titleCell.setAttribute('data-id', inquiry.inquiryId);
+            row.querySelector('.inquiry-category').textContent = categoryText;
+            row.querySelector('.inquiry-email').textContent = inquiry.memberEmail;
+            row.querySelector('.inquiry-date').textContent = formattedDate;
 
             // 클릭 이벤트 추가
             const titleLink = row.querySelector('.inquiry-title');

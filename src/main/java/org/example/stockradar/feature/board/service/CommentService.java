@@ -12,9 +12,11 @@ import org.example.stockradar.feature.auth.entity.Member;
 import org.example.stockradar.feature.auth.repository.MemberRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -77,7 +79,7 @@ public class CommentService {
 
     // 댓글 소프트 삭제: 도메인 메서드 softDelete()를 호출하여 deletedAt 필드를 갱신
     @Transactional(rollbackFor = Exception.class)
-    public boolean softDeleteComment(CommentDeleteRequestDto request) {
+    public boolean softDeleteComment(CommentDeleteRequestDto request, String memberId) {
         Long commentId = request.getCommentId();
         String password = request.getPassword();
 
@@ -85,8 +87,11 @@ public class CommentService {
         Comments comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
 
-        // 댓글 작성자(Member)가 존재하고, 비밀번호가 일치하는지 검증 -> 로그인 한 사람이 비번 맟추면 다 삭제 가능 -> 로그인 한 사람의 memberId와 일치 하는지 필요 (JWT 토큰 사용)
-        if (comment.getMember() == null || !passwordEncoder.matches(password, comment.getMember().getMemberPw())) {
+        // 작성자 본인만 삭제 가능 (로그인한 memberId와 작성자 일치 + 비밀번호 재확인)
+        if (comment.getMember() == null || !comment.getMember().getMemberId().equals(memberId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다.");
+        }
+        if (!passwordEncoder.matches(password, comment.getMember().getMemberPw())) {
             return false;
         }
 

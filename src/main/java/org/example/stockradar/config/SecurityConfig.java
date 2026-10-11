@@ -7,6 +7,8 @@ import org.example.stockradar.feature.auth.service.RoutingOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.*;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,7 +16,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 @Configuration
 @RequiredArgsConstructor
@@ -50,19 +55,36 @@ public class SecurityConfig {
 
                 // .authenticationManager(authenticationManager)
 
-                // -- feature/40 쪽 authorizeHttpRequests --
+                // CSRF 토큰은 사용하지 않음: 인증 쿠키를 SameSite=Lax로 발급해 교차 사이트 POST에 쿠키가 실리지 않도록 함
                 .authorizeHttpRequests(auth -> auth
+                        // 공개 페이지 / 정적 리소스
                         .requestMatchers(
-                                "/login", "/signup", "/auth/**",
-                                "/css/**", "/js/**", "/images/**",
-                                "/customerInquiry/**", "/board/**",
-                                "/assets/**", "/main", "/", "/auth/idInquiry", "/idInquiry",
-                                "/password/**","/product/**",
-                                "/main/check","/common/**", "comment/read",
-                                "/monitoring/**","/refresh","auth/refresh", "notification/**"
-
+                                "/", "/error", "/main", "/main/check", "/login", "/signup", "/idInquiry",
+                                "/auth/**", "/password/**",
+                                "/css/**", "/js/**", "/images/**", "/assets/**", "/ajax/**",
+                                "/common/**", "/product/**", "/customerInquiry/**"
                         ).permitAll()
+                        // 게시판/댓글은 조회만 공개, 작성·수정·삭제는 로그인 필요
+                        .requestMatchers(HttpMethod.GET,
+                                "/board/list", "/board/detail", "/board/search", "/comment/read"
+                        ).permitAll()
+                        // 관리자 전용
+                        .requestMatchers("/monitoring/**", "/customerInquiryprocessing/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
+                )
+
+                // AJAX(JSON) 엔드포인트는 로그인 페이지 리다이렉트 대신 401 반환
+                .exceptionHandling(ex -> ex
+                        .defaultAuthenticationEntryPointFor(
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                                new OrRequestMatcher(
+                                        new AntPathRequestMatcher("/comment/**"),
+                                        new AntPathRequestMatcher("/board/delete"),
+                                        new AntPathRequestMatcher("/notification/**", HttpMethod.POST.name()),
+                                        new AntPathRequestMatcher("/notification/read"),
+                                        new AntPathRequestMatcher("/notification/readSettings"),
+                                        new AntPathRequestMatcher("/monitoring/**")
+                                ))
                 )
 
                 .oauth2Login(oauth2 -> oauth2

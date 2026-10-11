@@ -17,7 +17,11 @@ spring:
     cache: false
 
   profiles:
-    active: local
+    active: ${SPRING_PROFILES_ACTIVE:local}
+
+  # 프로젝트 루트의 .env(KEY=VALUE)를 프로퍼티로 읽음. 파일이 없으면 무시 (git에는 .env.example만 커밋)
+  config:
+    import: optional:file:.env[.properties]
 
   sql:
     init:
@@ -47,12 +51,11 @@ spring:
       port: 6379
 
 
-  # SMTP 배포시 필요 X
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ***REMOVED***
-    password: ***REMOVED***
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -61,6 +64,26 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+
+# 비밀값은 전부 환경변수(.env)에서 주입
+jwt:
+  secret: ${JWT_SECRET:}
+
+discord:
+  bot:
+    token: ${DISCORD_BOT_TOKEN:}
+
+coolsms:
+  api-key: ${COOLSMS_API_KEY:}
+  api-secret: ${COOLSMS_API_SECRET:}
+  sender: ${COOLSMS_SENDER:}
+
+app:
+  # 비밀번호 재설정 메일 링크 등에 쓰는 외부 접속 주소
+  base-url: ${APP_BASE_URL:http://localhost:8099}
+  cookie:
+    # HTTPS 환경에서는 반드시 true
+    secure: ${COOKIE_SECURE:true}
 
 management:
   health:

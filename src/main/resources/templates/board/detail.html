@@ -50,7 +50,7 @@
             <!-- 작성자, 본문 내용 -->
             <div class="card-body">
                 <div class="board-content mb-3">
-                    <div th:utext="${board.content}" class="border p-3" style="min-height:200px;">
+                    <div th:text="${board.content}" class="border p-3" style="min-height:200px; white-space: pre-wrap;">
                         게시글 내용
                     </div>
                 </div>
@@ -166,16 +166,21 @@
                             comments.forEach(comment => {
                                 const commentCard = document.createElement('div');
                                 commentCard.classList.add('card', 'mb-3');
+                                // 사용자 입력은 textContent로만 출력 (XSS 방지)
                                 commentCard.innerHTML = `
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
-                                <strong>${comment.userName}</strong>
-                                <span>${new Date(comment.createdAt).toLocaleString()}</span>
+                                <strong class="comment-user"></strong>
+                                <span class="comment-date"></span>
                             </div>
-                            <div>${comment.content}</div>
-                            <button class="btn btn-sm btn-danger mt-2" data-comment-id="${comment.commentId}" data-toggle="modal" data-target="#deleteCommentModal" onclick="setCommentId(this)">삭제</button>
+                            <div class="comment-content" style="white-space: pre-wrap;"></div>
+                            <button class="btn btn-sm btn-danger mt-2" data-toggle="modal" data-target="#deleteCommentModal" onclick="setCommentId(this)">삭제</button>
                         </div>
                     `;
+                                commentCard.querySelector('.comment-user').textContent = comment.userName;
+                                commentCard.querySelector('.comment-date').textContent = new Date(comment.createdAt).toLocaleString();
+                                commentCard.querySelector('.comment-content').textContent = comment.content;
+                                commentCard.querySelector('button').dataset.commentId = comment.commentId;
                                 commentSection.appendChild(commentCard);
                             });
                         }
@@ -254,7 +259,6 @@
             function deleteComment() {
                 let password = document.getElementById("deleteCommentPassword").value;
 
-                console.log("password: " + password );
                 console.log("commentId: " + commentId);
 
                 axios.post('/comment/delete', {

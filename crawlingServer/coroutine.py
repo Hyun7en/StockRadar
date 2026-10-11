@@ -8,6 +8,7 @@ import os
 from logging.handlers import TimedRotatingFileHandler
 from crawler2 import process_task
 from url_config import URL_TASKS
+from db_config import DB_CONFIG
 
 # 로그 디렉토리 생성
 LOG_DIR = "logs"
@@ -107,11 +108,11 @@ async def main():
     # DB 커넥션 풀 생성 (aiomysql)
     logger.info("MySQL 연결 풀 생성 중...")
     pool = await aiomysql.create_pool(
-        host="***REMOVED***",
-        port=3306,
-        user="root",
-        password="***REMOVED***",
-        db="stockradar",
+        host=DB_CONFIG["host"],
+        port=DB_CONFIG["port"],
+        user=DB_CONFIG["user"],
+        password=DB_CONFIG["password"],
+        db=DB_CONFIG["database"],
         autocommit=True,
         minsize=1,
         maxsize=5

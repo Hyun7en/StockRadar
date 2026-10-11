@@ -49,17 +49,19 @@ public class CommentController {
     // 댓글 목록 조회 (페이징 처리 포함)
     @GetMapping("/read")
     public ResponseEntity<Page<CommentResponseDto>> getComments(@RequestParam Long boardId,@RequestParam(defaultValue = "0") int page) {
-        System.out.println("boardId: " + boardId);
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
         Page<CommentResponseDto> commentPage = commentService.getComments(boardId,pageable);
         return new ResponseEntity<>(commentPage, HttpStatus.OK);
     }
 
     @PostMapping("/delete")
-    public ResponseEntity<Map<String, Object>> softDeleteComment(@RequestBody CommentDeleteRequestDto request) {
-        boolean result = commentService.softDeleteComment(request);
+    public ResponseEntity<Map<String, Object>> softDeleteComment(@RequestBody CommentDeleteRequestDto request, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseEntity<>(Map.of("success", false, "message", "로그인 해주세요."), HttpStatus.UNAUTHORIZED);
+        }
+        boolean result = commentService.softDeleteComment(request, authentication.getName());
 
-        log.info("Delete comment request: {}", request);
+        log.info("Delete comment request: commentId={}", request.getCommentId());
 
         Map<String, Object> response = new HashMap<>();
         if(result) {

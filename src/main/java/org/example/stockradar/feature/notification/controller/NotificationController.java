@@ -62,7 +62,7 @@ public class NotificationController {
     @GetMapping("/read")
     public ResponseEntity<Page<InterestProductResponseDto>> getInterestProducts(Authentication authentication, @RequestParam(defaultValue = "0") int page) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            log.info("Do NOT read interest products");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         // 인증된 사용자 ID 가져오기 (예: JWT의 subject를 사용하여 memberId 반환)

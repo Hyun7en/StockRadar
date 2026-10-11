@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/stockradar?&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: 1234
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: update
@@ -13,8 +13,8 @@ spring:
       client:
         registration:
           naver:
-            client-id: ***REMOVED***
-            client-secret: ***REMOVED***
+            client-id: ${NAVER_CLIENT_ID:}
+            client-secret: ${NAVER_CLIENT_SECRET:}
             client-name: Naver
             scope:
               - name
@@ -24,8 +24,8 @@ spring:
             client-authentication-method: client_secret_basic
 
           discord:
-            client-id: ***REMOVED***
-            client-secret: ***REMOVED***
+            client-id: ${DISCORD_CLIENT_ID:}
+            client-secret: ${DISCORD_CLIENT_SECRET:}
             client-name: Discord
             scope:
               - identify
@@ -35,8 +35,8 @@ spring:
             client-authentication-method: client_secret_basic
 
           google:
-            client-id: ***REMOVED***
-            client-secret: ***REMOVED***
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
             scope:
               - email
               - profile
@@ -66,10 +66,8 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "*"  # 모든 패키지를 신뢰할 경우
+        spring.json.trusted.packages: "org.example.stockradar.feature.notification.dto"
 
-
-
-
-jwt:
-  secret: "***REMOVED***"
+app:
+  cookie:
+    secure: ${COOKIE_SECURE:false}  # 로컬은 http라 false
