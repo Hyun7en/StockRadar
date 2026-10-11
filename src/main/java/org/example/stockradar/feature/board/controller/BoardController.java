@@ -93,8 +93,11 @@ public class BoardController {
      * 게시글 수정 처리
      */
     @PostMapping("/update")
-    public String boardUpdate(@RequestParam Long boardId, BoardRequestDto boardRequestDto) {
-        boardService.updateBoard(boardId, boardRequestDto);
+    public String boardUpdate(@RequestParam Long boardId, @Valid BoardRequestDto boardRequestDto, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.");
+        }
+        boardService.updateBoard(boardId, boardRequestDto, authentication.getName());
         return "redirect:/board/detail?boardId=" + boardId;
     }
 
@@ -102,11 +105,14 @@ public class BoardController {
      * 게시글 삭제 처리
      */
     @PostMapping("/delete")
-    public ResponseEntity<Map<String, Object>> deleteBoard(@RequestBody BoardDeleteRequestDto request) {
+    public ResponseEntity<Map<String, Object>> deleteBoard(@RequestBody BoardDeleteRequestDto request, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "로그인 해주세요."));
+        }
         Long boardId = request.getBoardId();
         String password = request.getPassword();
 
-        boolean isDeleted = boardService.deleteBoard(boardId, password);
+        boolean isDeleted = boardService.deleteBoard(boardId, password, authentication.getName());
         Map<String, Object> response = new HashMap<>();
 
         if (!isDeleted) {

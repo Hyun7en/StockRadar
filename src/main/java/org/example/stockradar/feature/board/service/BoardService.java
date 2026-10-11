@@ -11,10 +11,12 @@ import org.example.stockradar.feature.board.entity.BoardContent;
 import org.example.stockradar.feature.board.repository.BoardRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -97,9 +99,10 @@ public class BoardService {
      * 게시글 수정 처리
      */
     @Transactional(rollbackFor = Exception.class)
-    public Board updateBoard(Long boardId, BoardRequestDto boardRequestDto) {
+    public Board updateBoard(Long boardId, BoardRequestDto boardRequestDto, String memberId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
+        checkOwner(board, memberId);
 
         // Board 엔터티의 도메인 메서드를 통해 제목,내용 업데이트 (필요에 따라 추가 업데이트 로직 작성)
         board.updateBoard(boardRequestDto.getBoardTitle());
@@ -115,13 +118,14 @@ public class BoardService {
      * 게시글 삭제 처리
      */
     @Transactional(rollbackFor = Exception.class)
-    public boolean deleteBoard(Long boardId, String password) {
+    public boolean deleteBoard(Long boardId, String password, String memberId) {
         Optional<Board> boardOpt = boardRepository.findById(boardId);
         if (!boardOpt.isPresent()) {
             return false;
         }
 
         Board board = boardOpt.get();
+        checkOwner(board, memberId);
         Member member = board.getMember();
 
         // 비밀번호 검증
@@ -134,6 +138,13 @@ public class BoardService {
         boardRepository.save(board); // 변경 사항 저장
 
         return true;
+    }
+
+    // 작성자 본인만 수정/삭제 가능
+    private void checkOwner(Board board, String memberId) {
+        if (board.getMember() == null || !board.getMember().getMemberId().equals(memberId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 수정/삭제할 수 있습니다.");
+        }
     }
 
     /**

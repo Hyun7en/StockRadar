@@ -52,9 +52,7 @@ public class NotificationService {
 
         NotificationEvent event = NotificationEvent.builder()
                 .interestProductId(interestProductId)
-                .emailAddress(member.getMemberId())   // memberId가 실제 이메일 주소라고 가정
-//                .phoneNumber(null)                     // 필요시 추가 정보 할당
-//                .discordUserId(null)                   // 필요시 추가 정보 할당
+                .memberId(member.getMemberId())       // 연락처는 consumer에서 memberId로 조회
                 .messageContent("")
                 .channels(channels)
                 // 알림 전송에 필요한 세부 정보 전달
@@ -86,7 +84,7 @@ public class NotificationService {
 
         NotificationEvent event = NotificationEvent.builder()
                 .interestProductId(interestProductId)
-                .emailAddress(memberId)
+                .memberId(memberId)
                 .messageContent(messageContent) // 메시지 콘텐츠를 직접 전달할 수도 있지만, unified 로직에서 재생성 가능하도록 기본값으로 비워둘 수도 있습니다.
                 .channels(channels)
                 .notificationType(notificationType)

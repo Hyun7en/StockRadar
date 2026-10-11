@@ -2,6 +2,8 @@ package org.example.stockradar.feature.notification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.stockradar.feature.auth.entity.Member;
+import org.example.stockradar.feature.auth.repository.MemberRepository;
 import org.example.stockradar.feature.notification.dto.NotificationEvent;
 import org.example.stockradar.feature.notification.entity.NotificationChannel;
 import org.springframework.stereotype.Service;
@@ -17,9 +19,18 @@ public class NotificationDispatcherService {
     private final SmsQueueService smsQueueService;
     private final DiscordQueueService discordQueueService;
     private final WebPushService webPushService;
+    private final MemberRepository memberRepository;
 
 
     public void dispatchNotification(NotificationEvent event) {
+        // Kafka 메시지에는 memberId만 오므로 연락처는 DB에서 조회해 채움
+        Member member = memberRepository.findByMemberId(event.getMemberId());
+        if (member == null) {
+            log.warn("알림 대상 회원 없음: interestProductId={}", event.getInterestProductId());
+            return;
+        }
+        event.setEmailAddress(member.getMemberId()); // memberId = 이메일 주소
+
         List<NotificationChannel> channels = event.getChannels();
 
         // 채널 설정이 없으면 기본 EMAIL 채널로 처리

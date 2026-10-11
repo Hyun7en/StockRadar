@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.stockradar.feature.auth.entity.Member;
 import org.example.stockradar.feature.auth.repository.MemberRepository;
 import org.example.stockradar.feature.auth.service.SmtpMailService;
+import org.example.stockradar.global.security.RedisRateLimiter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -25,6 +27,14 @@ public class PasswordController {
 
     // ★ Inject the PasswordEncoder to hash the new password
     private final PasswordEncoder passwordEncoder;
+    private final RedisRateLimiter rateLimiter;
+
+    // 재설정 링크에 쓰는 외부 접속 주소 (app.base-url, 운영은 https://${DOMAIN})
+    @Value("${app.base-url}")
+    private String baseUrl;
+
+    private static final String RESET_MAIL_SENT_MESSAGE =
+            "입력하신 이메일이 가입되어 있다면 비밀번호 재설정 링크를 전송했습니다. 10분 내에 진행해주세요.";
 
     /**
      * 비밀번호 찾기 폼(입력) - GET
@@ -41,11 +51,20 @@ public class PasswordController {
      */
     @PostMapping("/pwInquiry")
     public String processPwInquiry(@RequestParam("reset-email") String email,
+                                   HttpServletRequest request,
                                    Model model) {
+        // 메일 발송 남용 방지
+        if (!rateLimiter.tryAcquire("PW_RESET_MAIL:" + email, 3, Duration.ofHours(1))
+                || !rateLimiter.tryAcquire("PW_RESET_IP:" + request.getRemoteAddr(), 10, Duration.ofHours(1))) {
+            model.addAttribute("error", "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.");
+            return "auth/pwInquiry";
+        }
+
         // 1) 이메일 존재 여부 확인
         Member member = memberRepository.findByMemberId(email);
         if (member == null) {
-            model.addAttribute("error", "해당 이메일로 가입된 회원이 존재하지 않습니다.");
+            // 가입 여부가 드러나지 않도록 성공과 동일한 응답
+            model.addAttribute("msg", RESET_MAIL_SENT_MESSAGE);
             return "auth/pwInquiry";
         }
 
@@ -55,14 +74,13 @@ public class PasswordController {
         redisTemplate.opsForValue().set("PW_RESET:" + token, email, Duration.ofMinutes(10));
 
         // 3) 메일 발송
-        // 예) http://localhost:8080/password/resetPwForm?token=xxx
-        String resetLink = "http://localhost:8080/password/resetPwForm?token=" + token;
+        String resetLink = baseUrl + "/password/resetPwForm?token=" + token;
         String subject = "[StockRadar] 비밀번호 재설정 안내";
         String text = "아래 링크를 클릭하여 비밀번호를 재설정하세요:\n" + resetLink;
 
         smtpMailService.sendMail(email, subject, text);
 
-        model.addAttribute("msg", "해당 이메일로 비밀번호 재설정 링크를 전송했습니다. 10분 내에 진행해주세요.");
+        model.addAttribute("msg", RESET_MAIL_SENT_MESSAGE);
         return "auth/pwInquiry";
     }
 

@@ -15,5 +15,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class BoardDeleteRequestDto {
     private Long boardId;
+    @lombok.ToString.Exclude
     private String password;
 }

@@ -5,6 +5,7 @@ import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,12 +13,14 @@ import org.springframework.stereotype.Service;
 public class CoolsmsService {
 
     private final DefaultMessageService messageService;
+    private final String sender;
 
-    public CoolsmsService() {
-        // 실제 API Key / Secret (보통 외부 설정 파일로 관리)
-        String apiKey = "***REMOVED***";
-        String apiSecret = "***REMOVED***";
+    // API Key / Secret / 발신번호는 환경변수(COOLSMS_*)로 주입
+    public CoolsmsService(@Value("${coolsms.api-key}") String apiKey,
+                          @Value("${coolsms.api-secret}") String apiSecret,
+                          @Value("${coolsms.sender}") String sender) {
         this.messageService = new DefaultMessageService(apiKey, apiSecret, "https://api.coolsms.co.kr");
+        this.sender = sender;
     }
 
     /**
@@ -28,13 +31,13 @@ public class CoolsmsService {
      */
     public void sendSms(String to, String text) {
         Message message = new Message();
-        message.setFrom("01085339569"); // 인증된 발신번호
+        message.setFrom(sender); // 인증된 발신번호
         message.setTo(to);
         message.setText(text);
 
         try {
             SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
-            log.info("CoolSMS Response: {}", response);
+            log.info("CoolSMS 전송 완료: messageId={}", response.getMessageId());
         } catch (Exception e) {
             log.error("CoolSMS 전송 실패: {}", e.getMessage(), e);
         }

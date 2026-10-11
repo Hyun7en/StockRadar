@@ -6,6 +6,7 @@ import org.example.stockradar.feature.product.rtx4060Ti.service.Rtx4060TiStockCa
 import org.example.stockradar.feature.product.rtx4060Ti.service.Rtx4060TiStockCacheTestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,7 +26,8 @@ public class CacheMonitoringController {
         return ResponseEntity.ok(rtx4060TiStockCacheService.getCacheStats());
     }
 
-    @GetMapping("/reset")
+    // 상태 변경은 POST (접근 권한은 SecurityConfig에서 ADMIN으로 제한)
+    @PostMapping("/reset")
     public ResponseEntity<String> resetStats() {
         rtx4060TiStockCacheService.resetStats();
         return ResponseEntity.ok("통계가 초기화되었습니다.");
