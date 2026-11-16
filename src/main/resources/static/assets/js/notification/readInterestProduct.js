@@ -4,7 +4,7 @@ function readInterestProduct(page = 0) {
     })
         .then(response => {
             console.log("관심 상품 데이터:", response.data);
-            const pageData = response.data; // Page 객체 전체 (content, totalPages, number, first, last 등)
+            const pageData = response.data.data; // Page 객체 전체 (content, totalPages, number, first, last 등)
             const data = pageData.content;  // 실제 관심 상품 목록 배열
 
             const tbody = document.querySelector("table.table-wishlist tbody");
@@ -155,7 +155,7 @@ function readSettings(){
             console.log("알림 설정 데이터:", response.data);
             // 백엔드에서 반환하는 데이터 형식에 따라 아래 코드를 수정하세요.
             // 예: { emailNotification: true, smsNotification: false, discordNotification: true }
-            const settings = response.data;
+            const settings = response.data.data;
             document.getElementById("emailNotification").checked = settings.emailNotification;
             document.getElementById("smsNotification").checked = settings.smsNotification;
             document.getElementById("discordNotification").checked = settings.discordNotification;

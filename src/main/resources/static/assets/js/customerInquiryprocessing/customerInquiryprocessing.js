@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                displayCustomerInquiries(data);
+                displayCustomerInquiries(data.data);
             })
             .catch(error => {
                 console.error('고객문의 데이터 가져오기 실패:', error);

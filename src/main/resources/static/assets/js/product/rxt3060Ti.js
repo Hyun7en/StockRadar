@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json();
             })
             .then(responseData => {
-                if (responseData && responseData.status === 200 && responseData.data) {
+                if (responseData && responseData.success && responseData.data) {
                     // 제품 데이터를 테이블에 표시
                     displayProducts(responseData.data);
                 } else {

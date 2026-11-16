@@ -21,12 +21,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             // 인증 실패 (4xx 오류)
             console.error('인증 실패:', data.message);
 
-            // 힌트가 있으면 표시
-            if (data.hint) {
-                alert(data.hint);
-            } else {
-                alert(data.message || '인증에 실패했습니다.');
-            }
+            alert(data.message || '인증에 실패했습니다.');
 
             // 리다이렉트 URL이 있으면 해당 페이지로 이동
             if (data.redirectUrl) {
@@ -72,13 +67,13 @@ async function submitInquiry(email, title, category, content) {
 
         if (response.ok) {
             alert(data.message || '문의가 성공적으로 접수되었습니다.');
-            if (data.redirectUrl) {
-                window.location.href = data.redirectUrl;
+            if (data.data && data.data.redirectUrl) {
+                window.location.href = data.data.redirectUrl;
             }
         } else {
             // 서버에서 보내준 message와 hint를 모두 활용하여 명확히 표시
-            let errorMsg = data.hint || data.message || '문의 접수 중 오류가 발생했습니다.';
-            alert(hint);
+            let errorMsg = data.message || '문의 접수 중 오류가 발생했습니다.';
+            alert(errorMsg);
 
             if (data.redirectUrl) {
                 window.location.href = data.redirectUrl;

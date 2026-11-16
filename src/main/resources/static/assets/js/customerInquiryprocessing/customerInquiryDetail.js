@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 return response.json();
             })
-            .then(data => {
+            .then(body => {
+                const data = body.data;
                 // 폼 필드 채우기
                 document.getElementById('email').value = data.memberEmail || '';
 

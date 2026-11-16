@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const data = await response.json();
         console.log('서버 응답:', data);
 
-        updateUIBasedOnRole(data.role);
+        updateUIBasedOnRole(data.data.role);
     } catch (error) {
         console.error('Error:', error);
         updateUIBasedOnRole('GUEST');
