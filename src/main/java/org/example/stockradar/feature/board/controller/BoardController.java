@@ -6,18 +6,18 @@ import org.example.stockradar.feature.board.dto.BoardDeleteRequestDto;
 import org.example.stockradar.feature.board.dto.BoardRequestDto;
 import org.example.stockradar.feature.board.dto.BoardResponseDto;
 import org.example.stockradar.feature.board.service.BoardService;
+import org.example.stockradar.global.exception.BusinessException;
+import org.example.stockradar.global.exception.ErrorCode;
+import org.example.stockradar.global.response.ApiResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,10 +55,10 @@ public class BoardController {
      * 게시글 작성 후 db로 데이터 전송
      */
     @PostMapping("/insert")
-    public String boardInsert(@Valid BoardRequestDto boardRequestDto, Authentication authentication) throws ResponseStatusException {
+    public String boardInsert(@Valid BoardRequestDto boardRequestDto, Authentication authentication) {
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.");
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "인증되지 않은 사용자입니다.");
         }
 
         // 인증된 사용자 ID 가져오기 (예: JWT의 subject를 사용하여 memberId 반환)
@@ -95,7 +95,7 @@ public class BoardController {
     @PostMapping("/update")
     public String boardUpdate(@RequestParam Long boardId, @Valid BoardRequestDto boardRequestDto, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.");
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "인증되지 않은 사용자입니다.");
         }
         boardService.updateBoard(boardId, boardRequestDto, authentication.getName());
         return "redirect:/board/detail?boardId=" + boardId;
@@ -105,27 +105,17 @@ public class BoardController {
      * 게시글 삭제 처리
      */
     @PostMapping("/delete")
-    public ResponseEntity<Map<String, Object>> deleteBoard(@RequestBody BoardDeleteRequestDto request, Authentication authentication) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> deleteBoard(@RequestBody BoardDeleteRequestDto request, Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "로그인 해주세요."));
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인 해주세요.");
         }
-        Long boardId = request.getBoardId();
-        String password = request.getPassword();
 
-        boolean isDeleted = boardService.deleteBoard(boardId, password, authentication.getName());
-        Map<String, Object> response = new HashMap<>();
-
+        boolean isDeleted = boardService.deleteBoard(request.getBoardId(), request.getPassword(), authentication.getName());
         if (!isDeleted) {
-            response.put("success", false);
-            response.put("message", "비밀번호가 올바르지 않습니다.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            throw new BusinessException(ErrorCode.PASSWORD_MISMATCH, "비밀번호가 올바르지 않습니다.");
         }
 
-        response.put("success", true);
-        response.put("message", "게시글이 삭제되었습니다.");
-        response.put("redirectUrl", "/board/list");  // 리다이렉트 URL 추가
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.ok(Map.of("redirectUrl", "/board/list"), "게시글이 삭제되었습니다."));
     }
 
     /**

@@ -6,8 +6,9 @@ import org.example.stockradar.feature.crawl.service.ProductStockService;
 import org.example.stockradar.feature.product.dto.ProductResponseDto;
 import org.example.stockradar.feature.product.service.ProductALLServiceWithCache;
 import org.example.stockradar.feature.product.service.ProductStockServiceWithCache;
+import org.example.stockradar.global.exception.BusinessException;
 import org.example.stockradar.global.exception.ErrorCode;
-import org.example.stockradar.global.exception.specific.ProductException;
+import org.example.stockradar.global.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +52,7 @@ public class Rtx3050Controller {
 //
 //            if (rtx3050Products.isEmpty()) {
 //                logger.warn("RTX 3050 제품을 찾을 수 없습니다.");
-//                ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
+//                throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
 //
 //            }
 //
@@ -68,7 +69,7 @@ public class Rtx3050Controller {
 //
 //        } catch (Exception e) {
 //            logger.error("RTX 3050 제품 조회 중 오류 발생: {}", e.getMessage(), e);
-//            ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
+//            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
 //
 //        }
 //        return null;
@@ -92,7 +93,7 @@ public class Rtx3050Controller {
 //
 //            if (rtx3050Products.isEmpty()) {
 //                logger.warn("RTX 3050 제품을 찾을 수 없습니다.");
-//                ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
+//                throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
 //            }
 //
 //            logger.info("RTX 3050 제품 {} 개를 찾았습니다.", rtx3050Products.size());
@@ -108,41 +109,19 @@ public class Rtx3050Controller {
 //
 //        } catch (Exception e) {
 //            logger.error("RTX 3050 제품 조회 중 오류 발생: {}", e.getMessage(), e);
-//            ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
+//            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
 //        }
 //        return null;
 //    }
 //
     // 시나리오 3, 4, 5를 위한 새로운 엔드포인트
     @GetMapping("api/gpu/rtx3050")
-    public ResponseEntity<?> gpuRtx3050CachedAllApi() {
-        logger.info("RTX 3050 전체 캐싱 API 요청");
-
-        try {
-            // 캐시를 활용하여 RTX 3050 제품 조회
-            List<ProductResponseDto> rtx3050Products = productALLServiceWithCache.getProductsByKeyword("rtx 3050");
-
-            if (rtx3050Products.isEmpty()) {
-                logger.warn("RTX 3050 제품을 찾을 수 없습니다.");
-                ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
-            }
-
-            logger.info("RTX 3050 제품 {} 개를 찾았습니다.", rtx3050Products.size());
-
-            // 성공 응답 DTO 생성
-            ProductResponseDto responseDto = ProductResponseDto.builder()
-                    .status(200)
-                    .message("RTX 3050 제품 조회 성공 (전체 캐싱)")
-                    .data(rtx3050Products)
-                    .build();
-
-            return ResponseEntity.ok(responseDto);
-
-        } catch (Exception e) {
-            logger.error("RTX 3050 제품 조회 중 오류 발생: {}", e.getMessage(), e);
-            ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
+    public ResponseEntity<ApiResponse<List<ProductResponseDto>>> gpuRtx3050CachedAllApi() {
+        List<ProductResponseDto> products = productALLServiceWithCache.getProductsByKeyword("rtx 3050");
+        if (products.isEmpty()) {
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
         }
-        return null;
+        return ResponseEntity.ok(ApiResponse.ok(products));
     }
 
 }

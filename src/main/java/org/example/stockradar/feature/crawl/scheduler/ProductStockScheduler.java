@@ -10,8 +10,8 @@ import org.example.stockradar.feature.notification.entity.InterestProduct;
 import org.example.stockradar.feature.notification.repository.InterestProductRepository;
 import org.example.stockradar.feature.notification.service.NotificationService;
 import org.example.stockradar.feature.product.dto.ProductCacheDto;
+import org.example.stockradar.global.exception.BusinessException;
 import org.example.stockradar.global.exception.ErrorCode;
-import org.example.stockradar.global.exception.specific.CrawlException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -119,8 +119,7 @@ public class ProductStockScheduler {
     public void cacheProductStockStatus() {
         // 이미 실행 중인지 확인
         if (!isRunning.compareAndSet(false, true)) {
-            CrawlException.throwCustomException(ErrorCode.CONCURRENT_SCHEDULER_CONFLICT);
-            return;
+            throw new BusinessException(ErrorCode.CONCURRENT_SCHEDULER_CONFLICT);
         }
 
 
@@ -129,7 +128,7 @@ public class ProductStockScheduler {
             List<Product> products = productRepository.findAllWithStockStatusAndPrice();
 
             if (products == null || products.isEmpty()) {
-                CrawlException.throwCustomException(ErrorCode.DATA_FETCH_TIMEOUT);
+                throw new BusinessException(ErrorCode.DATA_FETCH_TIMEOUT);
             }
 
             int updatedCount = 0;
@@ -163,7 +162,7 @@ public class ProductStockScheduler {
 
 
         } catch (Exception e) {
-            CrawlException.throwCustomException(ErrorCode.SCHEDULER_EXECUTION_FAILED);
+            throw new BusinessException(ErrorCode.SCHEDULER_EXECUTION_FAILED);
         } finally {
             isRunning.set(false);
         }

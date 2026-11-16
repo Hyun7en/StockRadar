@@ -8,6 +8,8 @@ import org.example.stockradar.feature.notification.dto.InterestProductRequestDto
 import org.example.stockradar.feature.notification.dto.InterestProductResponseDto;
 import org.example.stockradar.feature.notification.entity.InterestProduct;
 import org.example.stockradar.feature.notification.repository.InterestProductRepository;
+import org.example.stockradar.global.exception.BusinessException;
+import org.example.stockradar.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,7 @@ public class InterestProductService {
         boolean exists = interestProductRepository.existsByMemberAndProduct(member, product);
         if (exists) {
             // 이미 등록된 경우, 별도의 예외를 던지거나 그냥 등록되지 않았다는 메시지를 반환할 수 있음
-            throw new IllegalStateException("이미 관심 상품으로 등록되어 있습니다.");
+            throw new BusinessException(ErrorCode.DUPLICATE_INTEREST_PRODUCT);
         }
 
         // InterestProduct 엔터티 생성
@@ -69,7 +71,7 @@ public class InterestProductService {
     public Long deleteInterestProduct(Long productId, String memberId) {
         InterestProduct interestProduct = interestProductRepository
                 .findByMember_MemberIdAndProduct_ProductId(memberId, productId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 관심 상품이 존재하지 않습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.INTEREST_PRODUCT_NOT_FOUND));
         Long interestProductId = interestProduct.getId();
         interestProductRepository.delete(interestProduct);
         return interestProductId;

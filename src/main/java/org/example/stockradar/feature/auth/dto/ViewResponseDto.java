@@ -12,8 +12,5 @@ import lombok.NoArgsConstructor;
 public class ViewResponseDto {
     private String memberId;
     private String role;
-    private String message;
-    private String hint;
-    private Integer status;
     private String redirectUrl;
 }

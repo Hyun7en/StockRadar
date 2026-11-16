@@ -9,17 +9,16 @@ import org.example.stockradar.feature.board.dto.BoardResponseDto;
 import org.example.stockradar.feature.board.entity.Board;
 import org.example.stockradar.feature.board.entity.BoardContent;
 import org.example.stockradar.feature.board.repository.BoardRepository;
+import org.example.stockradar.global.exception.BusinessException;
+import org.example.stockradar.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -52,7 +51,7 @@ public class BoardService {
         // 전달받은 memberId를 이용해 Member 엔터티 조회
         Member member = memberRepository.findByMemberId(memberId);
         if (member == null) {
-            throw new RuntimeException("Member not found with id: " + memberId);
+            throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
         }
 
         // Board 엔터티 생성 (빌더 사용)
@@ -80,12 +79,12 @@ public class BoardService {
         // 1) 게시글 상세 정보(DTO) 조회
         BoardResponseDto dto = boardRepository.findBoardResponseDtoByBoardId(boardId);
         if (dto == null) {
-            throw new RuntimeException("Board not found: " + boardId);
+            throw new BusinessException(ErrorCode.BOARD_NOT_FOUND);
         }
 
         // 2) viewCount 증가 처리 (엔티티 직접 조회 후 증가)
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.BOARD_NOT_FOUND));
         // 서비스 계층에서 처리
         long currentViews = board.getViewCount() == null ? 0 : board.getViewCount();
         board.incrementViewCount();
@@ -101,7 +100,7 @@ public class BoardService {
     @Transactional(rollbackFor = Exception.class)
     public Board updateBoard(Long boardId, BoardRequestDto boardRequestDto, String memberId) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.BOARD_NOT_FOUND));
         checkOwner(board, memberId);
 
         // Board 엔터티의 도메인 메서드를 통해 제목,내용 업데이트 (필요에 따라 추가 업데이트 로직 작성)
@@ -119,12 +118,8 @@ public class BoardService {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteBoard(Long boardId, String password, String memberId) {
-        Optional<Board> boardOpt = boardRepository.findById(boardId);
-        if (!boardOpt.isPresent()) {
-            return false;
-        }
-
-        Board board = boardOpt.get();
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.BOARD_NOT_FOUND));
         checkOwner(board, memberId);
         Member member = board.getMember();
 
@@ -143,7 +138,7 @@ public class BoardService {
     // 작성자 본인만 수정/삭제 가능
     private void checkOwner(Board board, String memberId) {
         if (board.getMember() == null || !board.getMember().getMemberId().equals(memberId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 수정/삭제할 수 있습니다.");
+            throw new BusinessException(ErrorCode.NOT_AUTHOR);
         }
     }
 

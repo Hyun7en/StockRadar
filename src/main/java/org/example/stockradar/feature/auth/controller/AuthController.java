@@ -12,9 +12,11 @@ import org.example.stockradar.feature.auth.jwt.RefreshTokenRedisService;
 import org.example.stockradar.feature.auth.repository.MemberRepository;
 import org.example.stockradar.feature.auth.service.CoolsmsService;
 import org.example.stockradar.feature.auth.service.MemberService;
+import org.example.stockradar.global.exception.BusinessException;
+import org.example.stockradar.global.exception.ErrorCode;
+import org.example.stockradar.global.response.ApiResponse;
 import org.example.stockradar.global.security.RedisRateLimiter;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -25,7 +27,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -203,15 +204,15 @@ public class AuthController {
 
     @ResponseBody
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refresh(@CookieValue(value = "SESSION_ID", required = false) String sessionId,
+    public ResponseEntity<ApiResponse<Void>> refresh(@CookieValue(value = "SESSION_ID", required = false) String sessionId,
                                                        HttpServletResponse response) {
         if (sessionId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 없습니다."));
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "세션이 없습니다.");
         }
 
         String memberId = refreshTokenRedisService.getMemberId(sessionId);
         if (memberId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "세션이 만료되었습니다."));
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "세션이 만료되었습니다.");
         }
 
         // 새 AccessToken은 HttpOnly 쿠키로만 전달 (응답 본문에 토큰 노출 X)
@@ -219,7 +220,7 @@ public class AuthController {
         authCookieManager.addCookie(response, AuthCookieManager.ACCESS_TOKEN, newAccessToken,
                 Duration.ofMillis(jwtTokenProvider.getAccessTokenValidity()));
 
-        return ResponseEntity.ok(Map.of("result", "refreshed"));
+        return ResponseEntity.ok(ApiResponse.ok(null, "refreshed"));
     }
 
     @GetMapping("/logout")

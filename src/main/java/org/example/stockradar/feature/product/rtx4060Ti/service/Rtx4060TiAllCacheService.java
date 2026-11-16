@@ -6,8 +6,8 @@ import org.example.stockradar.feature.crawl.entity.Product;
 import org.example.stockradar.feature.crawl.repository.ProductRepository;
 import org.example.stockradar.feature.product.dto.ProductResponseDto;
 import org.example.stockradar.feature.product.dto.ProductStaticCacheDto;
+import org.example.stockradar.global.exception.BusinessException;
 import org.example.stockradar.global.exception.ErrorCode;
-import org.example.stockradar.global.exception.specific.ProductException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -64,9 +64,8 @@ public class Rtx4060TiAllCacheService {
             }
         } catch (Exception e) {
             log.error("제품 ID {}의 재고 상태 조회 중 오류 발생: {}", productId, e.getMessage());
-            ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
         }
-        return null;
     }
 
     /**
@@ -109,9 +108,8 @@ public class Rtx4060TiAllCacheService {
             }
         } catch (Exception e) {
             log.error("제품 ID {}의 정적 데이터 조회 중 오류 발생: {}", productId, e.getMessage());
-            ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
         }
-        return null;
     }
 
 

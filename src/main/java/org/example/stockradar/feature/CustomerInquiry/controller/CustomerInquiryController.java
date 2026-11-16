@@ -1,13 +1,12 @@
 package org.example.stockradar.feature.CustomerInquiry.controller;
 
-import jakarta.persistence.EntityGraph;
 import lombok.RequiredArgsConstructor;
 import org.example.stockradar.feature.CustomerInquiry.dto.CustomerInquiryResponseDto;
 import org.example.stockradar.feature.CustomerInquiry.dto.CustomerInquiryUserRequestDto;
 import org.example.stockradar.feature.CustomerInquiry.service.CustomerInquiryService;
-import org.example.stockradar.global.exception.CustomException;
+import org.example.stockradar.global.exception.BusinessException;
 import org.example.stockradar.global.exception.ErrorCode;
-import org.example.stockradar.global.exception.specific.AuthException;
+import org.example.stockradar.global.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Map;
 
 @Controller
 @RequestMapping("customerInquiry")
@@ -42,67 +39,22 @@ public class CustomerInquiryController {
 
 
     @GetMapping("/api/check")
-    public ResponseEntity<?> customerInquiry(Authentication authentication, Model model) {
-        try {
-            if (authentication == null || !authentication.isAuthenticated()) {
-//                logger.warn("인증 실패.");
-                AuthException.throwAuthException(ErrorCode.UNAUTHORIZED);
-            }
-
-            // 인증된 사용자 ID 가져오기
-            String memberId = authentication.getName();
-//            logger.info("Authenticated user ID: {}", memberId);
-            model.addAttribute("memberId", memberId);
-
-            // 인증 성공 시 응답 - CustomerInquiryResponseDto 객체 사용
-            CustomerInquiryResponseDto responseDto = CustomerInquiryResponseDto.builder()
-                    .status(200)
-                    .message("인증 성공")
-                    .redirectUrl("/customerInquiry/customerInquiry")
-                    .build();
-
-            return ResponseEntity.ok(responseDto);
-
-        } catch (CustomException e) {
-            // 예외 발생 시 응답 - CustomerInquiryResponseDto 객체 사용
-            CustomerInquiryResponseDto responseDto = CustomerInquiryResponseDto.builder()
-                    .status(e.getHttpStatus())
-                    .message(e.getErrorMessage())
-                    .hint(e.getHint())
-                    .redirectUrl("/login")
-                    .build();
-
-//            logger.error("인증 예외 발생: {}, 힌트: {}", e.getErrorMessage(), e.getHint());
-
-            return ResponseEntity
-                    .status(e.getHttpStatus())
-                    .body(responseDto);
+    public ResponseEntity<ApiResponse<Void>> customerInquiry(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
+        return ResponseEntity.ok(ApiResponse.ok(null, "인증 성공"));
     }
-
 
     @PostMapping("submit")
-    public ResponseEntity<?> submitCustomerInquiry(
+    public ResponseEntity<ApiResponse<CustomerInquiryResponseDto>> submitCustomerInquiry(
             @RequestBody CustomerInquiryUserRequestDto requestDto,
             Authentication authentication) {
-
         if (authentication == null) {
-            throw new CustomException(
-                    ErrorCode.UNAUTHORIZED.getErrorCode(),
-                    ErrorCode.UNAUTHORIZED.getErrorMessage(),
-                    ErrorCode.UNAUTHORIZED.getDescription(),
-                    ErrorCode.UNAUTHORIZED.getHttpStatus()
-            );
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
-        String memberId = authentication.getName();
-        CustomerInquiryResponseDto responseDto = service.saveCustomerInquiry(requestDto, memberId);
-        return ResponseEntity.ok(Map.of(
-                "inquiryId", responseDto.getInquiryId(),
-                "redirectUrl", "/customerInquiry/customerInquiry",
-                "message", responseDto.getMessage()
-        ));
+        CustomerInquiryResponseDto responseDto = service.saveCustomerInquiry(requestDto, authentication.getName());
+        return ResponseEntity.ok(ApiResponse.ok(responseDto, "문의가 성공적으로 접수되었습니다."));
     }
-
-
 }

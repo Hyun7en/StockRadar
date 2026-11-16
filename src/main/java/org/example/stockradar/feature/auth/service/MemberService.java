@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.stockradar.feature.notification.entity.NotificationChannel;
 import org.example.stockradar.feature.notification.entity.NotificationSetting;
 import org.example.stockradar.feature.notification.repository.NotificationSettingRepository;
+import org.example.stockradar.global.exception.BusinessException;
+import org.example.stockradar.global.exception.ErrorCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +28,7 @@ public class MemberService {
     public void signUp(MemberSignupDto signupDto) {
         // 중복 체크
         if (memberRepository.findByMemberId(signupDto.getMemberId()) != null) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
+            throw new BusinessException(ErrorCode.DUPLICATE_MEMBER);
         }
 
         // 비밀번호 해싱

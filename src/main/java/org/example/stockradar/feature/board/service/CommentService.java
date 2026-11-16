@@ -10,13 +10,13 @@ import org.example.stockradar.feature.board.repository.BoardRepository;
 import org.example.stockradar.feature.board.repository.CommentRepository;
 import org.example.stockradar.feature.auth.entity.Member;
 import org.example.stockradar.feature.auth.repository.MemberRepository;
+import org.example.stockradar.global.exception.BusinessException;
+import org.example.stockradar.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -38,12 +38,12 @@ public class CommentService {
     public CommentRequestDto insertComment(CommentRequestDto commentRequestDto, String memberId) {
         // boardId를 이용해 Board 엔터티 조회
         Board board = boardRepository.findById(commentRequestDto.getBoardId())
-                .orElseThrow(() -> new RuntimeException("Board not found with id: " + commentRequestDto.getBoardId()));
+                .orElseThrow(() -> new BusinessException(ErrorCode.BOARD_NOT_FOUND));
 
         // 전달받은 memberId를 이용해 Member 엔터티 조회
         Member member = memberRepository.findByMemberId(memberId);
         if (member == null) {
-            throw new RuntimeException("Member not found with id: " + memberId);
+            throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
         }
 
         // Comments 엔터티 생성 (setter 없이 빌더 패턴과 도메인 메서드 활용)
@@ -85,11 +85,11 @@ public class CommentService {
 
         // commentId에 해당하는 댓글 조회
         Comments comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
 
         // 작성자 본인만 삭제 가능 (로그인한 memberId와 작성자 일치 + 비밀번호 재확인)
         if (comment.getMember() == null || !comment.getMember().getMemberId().equals(memberId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다.");
+            throw new BusinessException(ErrorCode.NOT_AUTHOR, "작성자만 삭제할 수 있습니다.");
         }
         if (!passwordEncoder.matches(password, comment.getMember().getMemberPw())) {
             return false;

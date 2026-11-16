@@ -7,11 +7,9 @@ import org.example.stockradar.feature.CustomerInquiry.entity.CustomerInquiry;
 import org.example.stockradar.feature.CustomerInquiry.repository.CustomerInquiryRepository;
 import org.example.stockradar.feature.auth.entity.Member;
 import org.example.stockradar.feature.auth.repository.MemberRepository;
-import org.example.stockradar.global.exception.CustomException;
+import org.example.stockradar.global.exception.BusinessException;
 import org.example.stockradar.global.exception.ErrorCode;
-import org.example.stockradar.global.exception.specific.CustomerInquiryProcessiongException;
 import org.springframework.stereotype.Service;
-import org.example.stockradar.global.exception.specific.CustomerInquiryException;
 import org.example.stockradar.global.exception.ErrorCode;
 
 @Service
@@ -26,12 +24,7 @@ public class CustomerInquiryService {
 
         // 회원이 없는 경우 예외 처리
         if (member == null) {
-            throw new CustomException(
-                    ErrorCode.UNAUTHORIZED.getErrorCode(),
-                    ErrorCode.UNAUTHORIZED.getErrorMessage(),
-                    ErrorCode.UNAUTHORIZED.getDescription(),
-                    ErrorCode.UNAUTHORIZED.getHttpStatus()
-            );
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
         try {
             CustomerInquiry inquiry = CustomerInquiry.builder()
@@ -45,14 +38,12 @@ public class CustomerInquiryService {
 
             return CustomerInquiryResponseDto.builder()
                     .inquiryId(inquiryId)
-                    .message("문의가 성공적으로 접수되었습니다.")
+                    .redirectUrl("/customerInquiry/customerInquiry")
                     .build();
         }
         //데이터 저장 실패
         catch (Exception e) {
-            CustomerInquiryProcessiongException.throwCustomException(ErrorCode.RESOURCE_SAVE_FAILED);
-
-            return null; // 이 코드는 실행되지 않지만 컴파일 에러 방지용
+            throw new BusinessException(ErrorCode.RESOURCE_SAVE_FAILED);
         }
 
 

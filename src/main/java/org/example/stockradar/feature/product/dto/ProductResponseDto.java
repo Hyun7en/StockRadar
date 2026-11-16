@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
@@ -18,9 +17,6 @@ public class ProductResponseDto {
     private Long price;
     private LocalDateTime lastUpdated;
     private String redirectUrl;
-    private int status;
-    private String message;
-    private List data;
     private Long productId;
     private String productUrl;
 

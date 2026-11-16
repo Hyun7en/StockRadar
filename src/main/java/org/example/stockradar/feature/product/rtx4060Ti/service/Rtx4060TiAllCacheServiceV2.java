@@ -7,7 +7,6 @@ import org.example.stockradar.feature.crawl.repository.ProductRepository;
 import org.example.stockradar.feature.product.dto.ProductResponseDto;
 import org.example.stockradar.feature.product.dto.ProductCacheDto;
 import org.example.stockradar.global.exception.ErrorCode;
-import org.example.stockradar.global.exception.specific.ProductException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 

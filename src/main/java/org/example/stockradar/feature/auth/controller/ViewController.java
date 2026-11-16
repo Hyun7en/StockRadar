@@ -3,12 +3,10 @@ package org.example.stockradar.feature.auth.controller;
 import org.example.stockradar.feature.CustomerInquiry.controller.CustomerInquiryController;
 import org.example.stockradar.feature.auth.dto.ViewResponseDto;
 import org.example.stockradar.feature.auth.service.CustomUserDetailsService;
-import org.example.stockradar.global.exception.ErrorCode;
-import org.example.stockradar.global.exception.specific.AuthException;
+import org.example.stockradar.global.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -39,7 +37,7 @@ public class ViewController {
         return "/main";
     }
     @GetMapping("/main/check")
-    public ResponseEntity<?> mainPage(Authentication authentication) {
+    public ResponseEntity<ApiResponse<ViewResponseDto>> mainPage(Authentication authentication) {
         ViewResponseDto viewResponseDto;
 
         if (authentication != null && authentication.isAuthenticated()) {
@@ -47,9 +45,6 @@ public class ViewController {
             String role = customUserDetailsService.getMemberRole(memberId);
             logger.info("User {} has role: {}", memberId, role);
             viewResponseDto = ViewResponseDto.builder()
-                    .status(HttpStatus.OK.value())
-                    .message("인증 성공")
-                    .hint("메인 페이지 접근 가능")
                     .memberId(memberId)
                     .role(role)
                     .redirectUrl("/main")
@@ -57,16 +52,12 @@ public class ViewController {
         } else {
             logger.info("Unauthenticated user accessing main page");
             viewResponseDto = ViewResponseDto.builder()
-                    .status(HttpStatus.OK.value())
-                    .message("비인증 사용자")
-                    .hint("메인 페이지 접근 가능")
                     .role("GUEST")
                     .redirectUrl("/main")
                     .build();
         }
 
-        logger.info(viewResponseDto.toString());
-        return ResponseEntity.ok(viewResponseDto);
+        return ResponseEntity.ok(ApiResponse.ok(viewResponseDto));
     }
 
 

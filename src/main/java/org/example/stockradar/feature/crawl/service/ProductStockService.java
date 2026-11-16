@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.stockradar.feature.crawl.entity.Product;
 import org.example.stockradar.feature.crawl.repository.ProductRepository;
 import org.example.stockradar.feature.product.dto.ProductResponseDto;
+import org.example.stockradar.global.exception.BusinessException;
 import org.example.stockradar.global.exception.ErrorCode;
-import org.example.stockradar.global.exception.specific.ProductException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -30,7 +30,7 @@ public class ProductStockService {
         try {
             List<Product> products = productRepository.findAllWithStockStatusAndPrice();
             if (products.isEmpty()) {
-                ProductException.throwCustomException(ErrorCode.STOCK_INFO_NOT_FOUND);
+                throw new BusinessException(ErrorCode.STOCK_INFO_NOT_FOUND);
             }
             log.info("총 {} 개의 상품 정보를 조회했습니다.", products.size());
 

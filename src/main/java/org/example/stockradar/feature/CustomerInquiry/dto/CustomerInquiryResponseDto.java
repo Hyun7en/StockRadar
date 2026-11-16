@@ -11,8 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CustomerInquiryResponseDto {
     private Long inquiryId;
-    private String message;
-    private String hint;
-    private Integer status;
     private String redirectUrl;
 }

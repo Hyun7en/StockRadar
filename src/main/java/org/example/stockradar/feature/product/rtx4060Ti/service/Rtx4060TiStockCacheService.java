@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.stockradar.feature.crawl.entity.Product;
 import org.example.stockradar.feature.crawl.repository.ProductRepository;
 import org.example.stockradar.feature.product.dto.ProductResponseDto;
+import org.example.stockradar.global.exception.BusinessException;
 import org.example.stockradar.global.exception.ErrorCode;
-import org.example.stockradar.global.exception.specific.ProductException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +67,7 @@ public class Rtx4060TiStockCacheService {
             List<Product> products = productRepository.findAllWithStockStatusAndPrice();
 
             if (products.isEmpty()) {
-                ProductException.throwCustomException(ErrorCode.STOCK_INFO_NOT_FOUND);
+                throw new BusinessException(ErrorCode.STOCK_INFO_NOT_FOUND);
             }
 
             log.info("총 {} 개의 RTX 4060Ti 제품 정보를 조회했습니다.", products.size());
@@ -83,7 +83,7 @@ public class Rtx4060TiStockCacheService {
                             availability = product.getStockStatus().getAvailability();
                             log.warn("ProductId가 null인 제품 발견: {}", product.getProductName());
                             //예외처리
-                            ProductException.throwCustomException(ErrorCode.PRODUCT_ID_NULL);
+                            throw new BusinessException(ErrorCode.PRODUCT_ID_NULL);
                         }
 
                         return ProductResponseDto.builder()

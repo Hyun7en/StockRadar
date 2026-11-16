@@ -5,8 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.stockradar.feature.crawl.service.ProductStockService;
 import org.example.stockradar.feature.product.dto.ProductResponseDto;
 import org.example.stockradar.feature.product.rtx3060Ti.service.Rtx3060TiService;
+import org.example.stockradar.global.exception.BusinessException;
 import org.example.stockradar.global.exception.ErrorCode;
-import org.example.stockradar.global.exception.specific.ProductException;
+import org.example.stockradar.global.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,7 +56,7 @@ public class Rtx3060Ticontroller {
 //
 //            if (rtx3060TiProducts.isEmpty()) {
 //                log.warn("RTX 3060Ti 제품을 찾을 수 없습니다.");
-//                ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
+//                throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
 //            }
 //
 //            log.info("RTX 3060Ti 제품 {} 개를 찾았습니다.", rtx3060TiProducts.size());
@@ -71,41 +72,19 @@ public class Rtx3060Ticontroller {
 //
 //        } catch (Exception e) {
 //            log.error("RTX 3060Ti 제품 조회 중 오류 발생: {}", e.getMessage(), e);
-//            ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
+//            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
 //        }
 //        return null;
 //    }
 
     //시나리오2
     @GetMapping("api/gpu/rtx3060Ti")
-    public ResponseEntity<?> gpuRtx3060TiApi() {
-        log.info("RTX 3060Ti API 요청");
-
-        try {
-            // 최적화된 쿼리로 RTX 3060Ti 제품 정보 가져오기
-            List<ProductResponseDto> rtx3060TiProducts = rtx3060TiService.getRtx3060TiInfo();
-
-            if (rtx3060TiProducts.isEmpty()) {
-                log.warn("RTX 3060Ti 제품을 찾을 수 없습니다.");
-                ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
-            }
-
-            log.info("RTX 3060Ti 제품 {} 개를 찾았습니다.", rtx3060TiProducts.size());
-
-            // 성공 응답 DTO 생성
-            ProductResponseDto responseDto = ProductResponseDto.builder()
-                    .status(200)
-                    .message("RTX 3060Ti 제품 조회 성공")
-                    .data(rtx3060TiProducts)
-                    .build();
-
-            return ResponseEntity.ok(responseDto);
-
-        } catch (Exception e) {
-            log.error("RTX 3060Ti 제품 조회 중 오류 발생: {}", e.getMessage(), e);
-            ProductException.throwCustomException(ErrorCode.PRODUCT_NOT_FOUND);
+    public ResponseEntity<ApiResponse<List<ProductResponseDto>>> gpuRtx3060TiApi() {
+        List<ProductResponseDto> products = rtx3060TiService.getRtx3060TiInfo();
+        if (products.isEmpty()) {
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
         }
-        return null;
+        return ResponseEntity.ok(ApiResponse.ok(products));
     }
 
 
